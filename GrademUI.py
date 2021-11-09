@@ -9,23 +9,30 @@ st.set_page_config(page_title='Gradem', page_icon="💎")
 
 #max_width
 def _max_width_():
-    max_width_str = f"max-width: 2000px;"
     st.markdown(
         f"""
-    <style>
+<style>
     .reportview-container .main .block-container{{
-        {max_width_str}
+        max-width: 1500px;
+        padding-top: 1rem;
+        padding-right: 5rem;
+        padding-left: 5rem;
+        padding-bottom: 1rem;
     }}
-    </style>    
-    """,
+    .reportview-container .main {{
+        background-color: black;
+    }}
+</style>
+""",
         unsafe_allow_html=True,
     )
 
 #hide menu
+'''
 st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-</style> """, unsafe_allow_html=True)
+</style> """, unsafe_allow_html=True)'''
 
 #Headings
 st.title('Welcome to Gradem!')
@@ -44,19 +51,28 @@ sentences = col1.file_uploader("Upload comment options", type=['csv','xlsx'])
 
 #Convert input files into list and reformat accordingly 
 if sentences is not None: 
-
-    with io.TextIOWrapper(sentences, encoding='utf-8') as tf2:
-        sentence_reader = csv.reader(tf2)
-        commentbank = list(sentence_reader)
-        for i in commentbank: # removes guidance blocks for teacher
+    if sentences.name[-4:] == '.csv':
+        df1 = pd.read_csv(sentences)
+        commentbank = df1.values.tolist()
+        for i in commentbank:
             del i[0]
+        st.write(commentbank)
+    else:
+        df1 = pd.read_excel(sentences)
+        commentbank = df1.values.tolist()
+        for i in commentbank:
+            del i[0]
+        st.write(commentbank)
 else:
     st.stop()
 
 if stu is not None:
-    df = pd.read_csv(stu)
-    studentinfo = df.values.tolist()
-    studentinfo.pop(0)
+    if stu.name[-4:] == '.csv':
+        df = pd.read_csv(stu)
+        studentinfo = df.values.tolist()
+    else:        
+        df = pd.read_excel(stu)
+        studentinfo = df.values.tolist()
 else:
     st.stop()
 
@@ -132,13 +148,13 @@ class student:
         st3 = ''
         if eff == 1:
             if self.deviation() <= 1:
-                st3 = commentbank[8][0]
+                st3 = commentbank[10][0]
             elif self.deviation() == 2:
-                st3 = commentbank[8][1]
+                st3 = commentbank[10][1]
             else:
-                st3 = commentbank[8][2]
+                st3 = commentbank[10][2]
         elif eff == 2:
-            if self.deviation() <= 1:
+            if self.deviation() <= 2:
                 st3 = commentbank[9][0]
             elif self.deviation() == 2:
                 st3 = commentbank[9][1]
@@ -146,11 +162,11 @@ class student:
                 st3 = commentbank[9][2]
         elif eff == 3:
             if self.deviation() <= 1:
-                st3 = commentbank[10][0]
+                st3 = commentbank[8][0]
             elif self.deviation() == 2:
-                st3 = commentbank[10][1]
+                st3 = commentbank[8][1]
             else:
-                st3 = commentbank[10][2]
+                st3 = commentbank[8][2]
         return st3
     
     def fos(self):
@@ -158,12 +174,12 @@ class student:
         maxGrade = max(self.intlist)
         hci = self.intlist.index(maxGrade)
 
-        if self.finalGrade in range(6, 8):
+        if self.finalGrade() in range(6, 8):
             if (self.A == self.B & self.B == self.C & self.C == self.D):
                 st4 = commentbank[11][0]
             else:
                 st4 = commentbank[11][hci]
-        elif self.finalGrade in range(4, 6):
+        elif self.finalGrade() in range(4, 6):
             if (self.A == self.B & self.B == self.C & self.C == self.D):
                 st4 = commentbank[12][0]
             else:
@@ -173,19 +189,19 @@ class student:
                 st4 = commentbank[13][0]
             else:
                 st4 = commentbank[13][hci]
-        return st4
+        return st4 
     
     def fis(self):
         st5 = ''
         minGrade = min(self.intlist)
         lci = self.intlist.index(minGrade)
 
-        if self.finalGrade in range(6, 8):
+        if self.finalGrade() in range(6, 8):
             if self.A == self.B & self.B == self.C & self.C == self.D:
                 st5 = commentbank[14][0]
             else:
                 st5 = commentbank[14][lci]
-        elif self.finalGrade in range(4, 6):
+        elif self.finalGrade() in range(4, 6):
             if self.A == self.B & self.B == self.C & self.C == self.D:
                 st5 = commentbank[15][0] 
             else:
@@ -252,12 +268,11 @@ class student:
         else:
             p1 = period.replace('He!', 'She')
             p2 = p1.replace('he!', 'she')
-            p3 = p2.replace('His!', 'He!r')
+            p3 = p2.replace('His!', 'Her')
             p4 = p3.replace('his!', 'her')
             return p4
 
 stucount = len(studentinfo)
-st.write(stucount)
 
 for i in range(0,stucount):
     stx = student(i)
