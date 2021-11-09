@@ -1,12 +1,36 @@
 import streamlit as st
 import random
 import csv as csv
+import pandas as pd
 import io
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
+
+#max_width
+def _max_width_():
+    max_width_str = f"max-width: 2000px;"
+    st.markdown(
+        f"""
+    <style>
+    .reportview-container .main .block-container{{
+        {max_width_str}
+    }}
+    </style>    
+    """,
+        unsafe_allow_html=True,
+    )
+
+#hide menu
+st.markdown(""" <style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style> """, unsafe_allow_html=True)
+
+#Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
+_max_width_()
 
 col1, col2 = st.columns(2)
 #self.Basic Values
@@ -15,8 +39,8 @@ periodinput = col1.selectbox('Select Period: ', ('semester','year'))
 unitinput = col1.text_input("Input Unit: ")
 
 #File I/O
-stu = col1.file_uploader("Upload student.csv file", type=['csv'])
-sentences = col1.file_uploader("Upload comment options", type=['csv'])
+stu = col1.file_uploader("Upload student.csv file", type=['csv','xlsx'])
+sentences = col1.file_uploader("Upload comment options", type=['csv','xlsx'])
 
 #Convert input files into list and reformat accordingly 
 if sentences is not None: 
@@ -30,11 +54,9 @@ else:
     st.stop()
 
 if stu is not None:
-
-    with io.TextIOWrapper(stu, encoding='utf-8') as tf:
-        student_reader = csv.reader(tf)
-        studentinfo = list(student_reader)
-        studentinfo.pop(0)
+    df = pd.read_csv(stu)
+    studentinfo = df.values.tolist()
+    studentinfo.pop(0)
 else:
     st.stop()
 
@@ -241,3 +263,4 @@ for i in range(0,stucount):
     stx = student(i)
     col2.header("{0} {1}".format(stx.fn,stx.ln))
     col2.write(stx.finalComment())
+
