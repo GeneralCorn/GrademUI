@@ -1,8 +1,6 @@
 import streamlit as st
 import random
-import csv as csv
 import pandas as pd
-import io
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
