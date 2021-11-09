@@ -28,11 +28,10 @@ def _max_width_():
     )
 
 #hide menu
-'''
 st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-</style> """, unsafe_allow_html=True)'''
+</style> """, unsafe_allow_html=True)
 
 #Headings
 st.title('Welcome to Gradem!')
@@ -56,13 +55,11 @@ if sentences is not None:
         commentbank = df1.values.tolist()
         for i in commentbank:
             del i[0]
-        st.write(commentbank)
     else:
         df1 = pd.read_excel(sentences)
         commentbank = df1.values.tolist()
         for i in commentbank:
             del i[0]
-        st.write(commentbank)
 else:
     st.stop()
 
