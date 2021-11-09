@@ -6,16 +6,17 @@ import io
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
 st.title('Welcome to Gradem!')
-st.header('Gradem is a centralized is an IB MYP design comments generator')
+st.header('Gradem is a centralized IB MYP design comments generator')
 
+col1, col2 = st.columns(2)
 #self.Basic Values
 #stucount = st.slider('How many students?', 1)
-periodinput = st.selectbox('Select Period: ', ('semester','year'))
-unitinput = st.text_input("Input Unit: ")
+periodinput = col1.selectbox('Select Period: ', ('semester','year'))
+unitinput = col1.text_input("Input Unit: ")
 
 #File I/O
-stu = st.file_uploader("Upload student.csv file", type=['csv'])
-sentences = st.file_uploader("Upload comment options", type=['csv'])
+stu = col1.file_uploader("Upload student.csv file", type=['csv'])
+sentences = col1.file_uploader("Upload comment options", type=['csv'])
 
 #Convert input files into list and reformat accordingly 
 if sentences is not None: 
@@ -231,12 +232,12 @@ class student:
             p2 = p1.replace('he!', 'she')
             p3 = p2.replace('His!', 'He!r')
             p4 = p3.replace('his!', 'her')
-            return st.write(p4)
+            return p4
 
 stucount = len(studentinfo)
 st.write(stucount)
 
 for i in range(0,stucount):
     stx = student(i)
-    st.header("{0} {1}".format(stx.fn,stx.ln))
-    st.write(stx.finalComment())
+    col2.header("{0} {1}".format(stx.fn,stx.ln))
+    col2.write(stx.finalComment())
