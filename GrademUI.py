@@ -2,6 +2,8 @@ import streamlit as st
 import random
 import pandas as pd
 import openpyxl
+from streamlit_echarts import st_echarts
+import collections
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
@@ -24,10 +26,10 @@ def _max_width_():
     )
 
 #hide menu
-st.markdown(""" <style>
+'''st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-</style> """, unsafe_allow_html=True)
+</style> """, unsafe_allow_html=True)'''
 
 #Headings
 st.title('Welcome to Gradem!')
@@ -37,12 +39,13 @@ _max_width_()
 col1, col2 = st.columns(2)
 #self.Basic Values
 #stucount = st.slider('How many students?', 1)
-periodinput = col1.selectbox('Select Period: ', ('semester','year'))
-unitinput = col1.text_input("Input Unit: ")
+
+periodinput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
+unitinput = st.sidebar.text_input("Input Unit: ")
 
 #File I/O
-stu = col1.file_uploader("Upload student.csv file", type=['csv','xlsx'])
-sentences = col1.file_uploader("Upload comment options", type=['csv','xlsx'])
+stu = st.sidebar.file_uploader("Select student.xlsx or student.csv file",type=['csv','xlsx'])
+sentences = st.sidebar.file_uploader("Select sentences.xlsx or sentences.csv file", type=['csv','xlsx'])
 
 #Convert input files into list and reformat accordingly 
 if sentences is not None: 
@@ -266,9 +269,62 @@ class student:
             return p4
 
 stucount = len(studentinfo)
+gradelist = []
 
 for i in range(0,stucount):
     stx = student(i)
-    col2.header("{0} {1}".format(stx.fn,stx.ln))
-    col2.write(stx.finalComment())
+    st.header("{0} {1}".format(stx.fn,stx.ln))
+    st.write(stx.finalComment())
+    gradelist.append(stx.finalGrade())
+
+# Visualization of Grades
+counter=collections.Counter(gradelist)
+cdict = dict(counter)
+x = [1,2,3,4,5,6,7]
+for i in x: 
+    if i not in cdict.keys():
+        cdict[i] = 0 
+
+dict = [
+                {"value": cdict[7], "name": "No. of 7"},
+                {"value": cdict[6], "name": "No. of 6"},
+                {"value": cdict[5], "name": "No. of 5"},
+                {"value": cdict[4], "name": "No. of 4"},
+                {"value": cdict[3], "name": "No. of 3"},
+                {"value": cdict[2], "name": "No. of 2"},
+                {"value": cdict[1], "name": "No. of 1"}
+] 
+
+def hi():
+    options = {
+        "tooltip": {"trigger": "item"},
+        "legend": {"top": "5%", "left": "center"},
+        "series": [
+            {
+                "name": "访问来源",
+                "type": "pie",
+                "radius": ["40%", "70%"],
+                "avoidLabelOverlap": False,
+                "itemStyle": {
+                    "borderRadius": 10,
+                    "borderColor": "#fff",
+                    "borderWidth": 2,
+                },
+                "label": {"show": False, "position": "center"},
+                "emphasis": {
+                    "label": {"show": True, "fontSize": "40", "fontWeight": "bold"}
+                },
+                "labelLine": {"show": False},
+                "data": dict, 
+                    
+            }
+        ],
+    }
+    st_echarts(
+        options=options, height="500px",
+    )
+
+with st.expander("Grades Visualizer"):
+    hi()
+
 
