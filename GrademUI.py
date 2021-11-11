@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import pandas as pd
+import openpyxl
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
@@ -54,7 +55,7 @@ if sentences is not None:
         for i in commentbank:
             del i[0]
     else:
-        df1 = pd.read_excel(open(sentences, 'rb'))
+        df1 = pd.read_excel(sentences)
         commentbank = df1.values.tolist()
         for i in commentbank:
             del i[0]
@@ -66,7 +67,7 @@ if stu is not None:
         df = pd.read_csv(stu)
         studentinfo = df.values.tolist()
     else:        
-        df = pd.read_excel(open(stu),'rb')
+        df = pd.read_excel(stu)
         studentinfo = df.values.tolist()
 else:
     st.stop()
