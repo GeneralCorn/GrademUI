@@ -26,7 +26,7 @@ def _max_width_():
     )
 
 #hide menu
-'''st.markdown(""" <style>
+x = '''st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 </style> """, unsafe_allow_html=True)'''
@@ -34,6 +34,7 @@ footer {visibility: hidden;}
 #Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
+st.text('Please scroll to the very bottom for some visualizations')
 _max_width_()
 
 col1, col2 = st.columns(2)
@@ -301,10 +302,9 @@ def hi():
         "legend": {"top": "5%", "left": "center"},
         "series": [
             {
-                "name": "访问来源",
                 "type": "pie",
-                "radius": ["40%", "70%"],
-                "avoidLabelOverlap": False,
+                "radius": ["30%", "70%"],
+                "avoidLabelOverlap": True,
                 "itemStyle": {
                     "borderRadius": 10,
                     "borderColor": "#fff",
@@ -324,7 +324,9 @@ def hi():
         options=options, height="500px",
     )
 
-with st.expander("Grades Visualizer"):
+st.markdown('''---''')
+st.header("Grades Visualizer")
+with st.expander(""):
     hi()
 
 
