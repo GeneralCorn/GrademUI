@@ -18,9 +18,6 @@ def _max_width_():
         padding-left: 5rem;
         padding-bottom: 1rem;
     }}
-    .reportview-container .main {{
-        background-color: black;
-    }}
 </style>
 """,
         unsafe_allow_html=True,
