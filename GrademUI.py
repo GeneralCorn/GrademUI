@@ -34,19 +34,21 @@ footer {visibility: hidden;}
 #Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
-st.text('Please scroll to the very bottom for some visualizations')
+st.markdown('Download the template files [here](https://shenwaiinternational-my.sharepoint.com/:f:/g/personal/22_cobbi_liu_swis_cn/Eg4lhps6OyVLjcV_-CyO8_QBnJTXvnK4aspnxVLYSiR1JQ?e=65zHsU)')
+st.caption('Please scroll to the very bottom for some visualizations')
 _max_width_()
 
 col1, col2 = st.columns(2)
 #self.Basic Values
-#stucount = st.slider('How many students?', 1)
 
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
 unitinput = st.sidebar.text_input("Input Unit: ")
 
 #File I/O
-stu = st.sidebar.file_uploader("Select student.xlsx or student.csv file",type=['csv','xlsx'])
-sentences = st.sidebar.file_uploader("Select sentences.xlsx or sentences.csv file", type=['csv','xlsx'])
+stu = st.sidebar.file_uploader("Select student file",type=['csv','xlsx'])
+st.sidebar.caption("In the form of student.csv or student.xlsx")
+sentences = st.sidebar.file_uploader("Select commentbank file", type=['csv','xlsx'])
+st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
 
 #Convert input files into list and reformat accordingly 
 if sentences is not None: 
