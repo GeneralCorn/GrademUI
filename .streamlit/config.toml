@@ -1,6 +1,7 @@
 [server]
 maxUploadSize=10
 runOnSave = true
+enableCORS = false
 
 
 [theme]
