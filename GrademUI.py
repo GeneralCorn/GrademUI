@@ -40,7 +40,7 @@ _max_width_()
 
 
 
-with st.expander("Download Template Files")
+with st.expander("Download Template Files"):
     with open("./sentences.xlsx", "rb") as file:
         btn = st.download_button(
         label="Download File",
