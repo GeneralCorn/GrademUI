@@ -34,26 +34,25 @@ footer {visibility: hidden;}
 #Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
-st.markdown('Download the template files [here](https://shenwaiinternational-my.sharepoint.com/:f:/g/personal/22_cobbi_liu_swis_cn/Eg4lhps6OyVLjcV_-CyO8_QBnJTXvnK4aspnxVLYSiR1JQ?e=65zHsU)')
+
+with st.expander("Please download the template files"):
+    with open("./Templates.zip", "rb") as file:
+        btn = st.download_button(
+        label="Download",
+        data=file,
+        file_name="Templates.zip",
+        mime="file/zip"
+        )
+
 st.caption('Please scroll to the very bottom for some visualizations')
 _max_width_()
-
-
-
-with st.expander("Download Template Files"):
-    with open("./sentences.xlsx", "rb") as file:
-        btn = st.download_button(
-        label="Download File",
-        data=file,
-        file_name="sentences.xlsx",
-        mime="file/xlsx"
-    )
 
 col1, col2 = st.columns(2)
 #self.Basic Values
 
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
-unitinput = st.sidebar.text_input("Input Unit: ")
+unitinput = st.sidebar.text_input("Input Subject Unit: ")
+st.sidebar.caption('i.e. Landscapes, Web Design')
 
 #File I/O
 stu = st.sidebar.file_uploader("Select student file",type=['csv','xlsx'])
