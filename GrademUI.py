@@ -38,6 +38,17 @@ st.markdown('Download the template files [here](https://shenwaiinternational-my.
 st.caption('Please scroll to the very bottom for some visualizations')
 _max_width_()
 
+
+
+with st.expander("Download Template Files")
+    with open("./sentences.xlsx", "rb") as file:
+        btn = st.download_button(
+        label="Download File",
+        data=file,
+        file_name="sentences.xlsx",
+        mime="file/xlsx"
+    )
+
 col1, col2 = st.columns(2)
 #self.Basic Values
 
