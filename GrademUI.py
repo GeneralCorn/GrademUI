@@ -47,7 +47,6 @@ with st.expander("Please download the template files"):
 st.caption('Please scroll to the very bottom for some visualizations')
 _max_width_()
 
-col1, col2 = st.columns(2)
 #self.Basic Values
 
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
@@ -101,6 +100,9 @@ class student:
         self.D = self.intlist[3]
         self.fn=studentinfo[col][0]
         self.ln=studentinfo[col][1]
+
+    def totalMarks(self):
+        return sum(self.intlist)
 
     def finalGrade(self):
         x = sum(self.intlist)
@@ -283,16 +285,22 @@ class student:
 
 stucount = len(studentinfo)
 gradelist = []
+totalMarks = []
 
-for i in range(0,stucount):
+for i in range(stucount):
     stx = student(i)
+    gradelist.append(stx.finalGrade())
+    totalMarks.append(stx.totalMarks())
+     
     st.header("{0} {1}".format(stx.fn,stx.ln))
     st.write(stx.finalComment())
-    gradelist.append(stx.finalGrade())
+
+markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 
 # Visualization of Grades
 counter=collections.Counter(gradelist)
 cdict = dict(counter)
+
 x = [1,2,3,4,5,6,7]
 for i in x: 
     if i not in cdict.keys():
@@ -335,10 +343,16 @@ def hi():
     st_echarts(
         options=options, height="500px",
     )
-
 st.markdown('''---''')
-st.header("Grades Visualizer")
-with st.expander(""):
+
+st.header("Class Statistics")
+with st.expander("Open statistics"):
+    col1, col2 = st.columns(2) 
+    col1.metric(label = 'Class Size',value = stucount)
+    col2.markdown('Top Students')
+    for i in markIndex:
+        col2.write(student(i).fn + ' ' + student(i).ln)
+
     hi()
 
 
