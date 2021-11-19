@@ -288,19 +288,26 @@ stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
 
+#Results Showcase
 with st.spinner("Extending deadlines..."):
     time.sleep(2)
+    
+    bar = st.progress(0)
+    for i in range(100):
+        time.sleep(0.01)
+        bar.progress(i + 1)
+
     for i in range(stucount):
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
         st.header("{0} {1}".format(stx.fn,stx.ln))
         st.write(stx.finalComment())
-    time.sleep(1)
+
     st.balloons()
-markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 
 # Visualization of Grades
+markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 counter=collections.Counter(gradelist)
 cdict = dict(counter)
 
