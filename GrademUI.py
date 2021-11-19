@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import time
 import pandas as pd
 import openpyxl
 from streamlit_echarts import st_echarts
@@ -287,14 +288,16 @@ stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
 
-for i in range(stucount):
-    stx = student(i)
-    gradelist.append(stx.finalGrade())
-    totalMarks.append(stx.totalMarks())
-     
-    st.header("{0} {1}".format(stx.fn,stx.ln))
-    st.write(stx.finalComment())
-
+with st.spinner("Extending deadlines..."):
+    time.sleep(2)
+    for i in range(stucount):
+        stx = student(i)
+        gradelist.append(stx.finalGrade())
+        totalMarks.append(stx.totalMarks())
+        st.header("{0} {1}".format(stx.fn,stx.ln))
+        st.write(stx.finalComment())
+    time.sleep(1)
+    st.balloons()
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 
 # Visualization of Grades
