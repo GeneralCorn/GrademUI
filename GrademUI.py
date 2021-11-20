@@ -73,6 +73,7 @@ if sentences is not None:
         for i in commentbank:
             del i[0]
 else:
+    st.warning("Upload commentbank file")
     st.stop()
 
 if stu is not None:
@@ -83,6 +84,7 @@ if stu is not None:
         df = pd.read_excel(stu)
         studentinfo = df.values.tolist()
 else:
+    st.warning("Upload student file")
     st.stop()
 
 #student class, each object has unique set of info list based on object parameter
