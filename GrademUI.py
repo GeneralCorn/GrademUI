@@ -5,8 +5,6 @@ import random
 import time
 import collections
 import pandas as pd
-import docx
-from docx import Document
 from streamlit_echarts import st_echarts
 
 # Favicon and Headings
@@ -336,6 +334,7 @@ with st.spinner("Extending deadlines..."):
         studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
 
 # generate document
+"""
 exportComments = Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
@@ -345,7 +344,7 @@ for key in studentCommentPair:
 
 # Export comments as a document directly to downloads folder
 upPeriod = periodinput.capitalize()
-exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
+exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")"""
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
