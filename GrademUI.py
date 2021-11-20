@@ -3,20 +3,21 @@ from io import StringIO
 from pathlib import Path
 import random
 import time
+import collections
 import pandas as pd
 import docx
 from docx import Document
-import openpyxl
 from streamlit_echarts import st_echarts
-import collections
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
 
-#max_width
+# max_width
+
+
 def _max_width_():
     st.markdown(
-        f"""
+        """
 <style>
     .reportview-container .main .block-container{{
         max-width: 1500px;
@@ -30,43 +31,45 @@ def _max_width_():
         unsafe_allow_html=True,
     )
 
-#hide menu
+
+# hide menu
 x = '''st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 </style> """, unsafe_allow_html=True)'''
 
-#Headings
+# Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
 
 with st.expander("Please download the template files"):
     with open("./Templates.zip", "rb") as file:
         btn = st.download_button(
-        label="Download",
-        data=file,
-        file_name="Templates.zip",
-        mime="file/zip"
+            label="Download",
+            data=file,
+            file_name="Templates.zip",
+            mime="file/zip"
         )
 
 st.caption('Please scroll to the very bottom for some visualizations')
 _max_width_()
 
-#self.Basic Values
+# self.Basic Values
 
-periodInput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
+periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
 collectiveInfo = st.sidebar.text_input("Input Grade and Class (i.e G7.1)")
 
-#File I/O
-stu = st.sidebar.file_uploader("Select student file",type=['csv','xlsx'])
+# File I/O
+stu = st.sidebar.file_uploader("Select student file", type=['csv', 'xlsx'])
 st.sidebar.caption("In the form of student.csv or student.xlsx")
-sentences = st.sidebar.file_uploader("Select commentbank file", type=['csv','xlsx'])
+sentences = st.sidebar.file_uploader(
+    "Select commentbank file", type=['csv', 'xlsx'])
 st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
 
-#Convert input files into list and reformat accordingly 
-if sentences is not None: 
+# Convert input files into list and reformat accordingly
+if sentences is not None:
     if sentences.name[-4:] == '.csv':
         df1 = pd.read_csv(sentences)
         commentbank = df1.values.tolist()
@@ -78,65 +81,70 @@ if sentences is not None:
         for i in commentbank:
             del i[0]
 else:
+    st.warning("Upload commentbank file")
     st.stop()
 
 if stu is not None:
     if stu.name[-4:] == '.csv':
         df = pd.read_csv(stu)
         studentinfo = df.values.tolist()
-    else:        
+    else:
         df = pd.read_excel(stu)
         studentinfo = df.values.tolist()
 else:
+    st.warning("Upload student file")
     st.stop()
 
-#student class, each object has unique set of info list based on object parameter
-class student: 
+# student class, each object has unique set of info list based on object
+# parameter
+
+
+class student:
 
     def __init__(self, col):
         self.col = col
-        self.list = [studentinfo[col][2],
-                     studentinfo[col][3],
-                     studentinfo[col][4],
-                     studentinfo[col][5]]
-        self.intlist = [int(i) for i in self.list]
+    
+        self.intlist = []
+        for i in range(2, 6):
+            self.intlist.append(studentinfo[col][i])
+
         self.A = self.intlist[0]
         self.B = self.intlist[1]
         self.C = self.intlist[2]
         self.D = self.intlist[3]
-        self.fn=studentinfo[col][0]
-        self.ln=studentinfo[col][1]
+        self.fn = studentinfo[col][0]
+        self.ln = studentinfo[col][1]
 
     def totalMarks(self):
         return sum(self.intlist)
 
     def finalGrade(self):
         x = sum(self.intlist)
-        if x <= 4: 
+        if x <= 4:
             return 1
         elif x <= 8:
             return 2
-        elif x <=13:
+        elif x <= 13:
             return 3
-        elif x <=17:
+        elif x <= 17:
             return 4
-        elif x <=22:
+        elif x <= 22:
             return 5
-        elif x <=26:
+        elif x <= 26:
             return 6
-        elif x <=32:
+        elif x <= 32:
             return 7
-    
+
     def deviation(self):
         deviation = max(self.intlist) - min(self.intlist)
         return deviation
-    
+
     def fs(self):
         st1 = ''
         if self.finalGrade() == 7:
-            st1 = commentbank[0][random.randint(0,4)]
+            st1 = commentbank[0][random.randint(0, 4)]
         elif self.finalGrade() == 6:
-            st1 = commentbank[1][random.randint(0,4)]
+            st1 = commentbank[1][random.randint(0, 4)]
         elif self.finalGrade() == 5:
             st1 = commentbank[2][random.randint(0, 4)]
         elif self.finalGrade() == 4:
@@ -154,12 +162,12 @@ class student:
         tg = int(studentinfo[self.col][6])
         if self.finalGrade() > tg:
             st2 = commentbank[7][0]
-        elif self.finalGrade() == tg: 
+        elif self.finalGrade() == tg:
             st2 = commentbank[7][1]
         else:
             st2 = commentbank[7][2]
-        return st2 
-    
+        return st2
+
     def ts(self):
         eff = int(studentinfo[self.col][12])
         st3 = ''
@@ -185,7 +193,7 @@ class student:
             else:
                 st3 = commentbank[8][2]
         return st3
-    
+
     def fos(self):
         st4 = ''
         maxGrade = max(self.intlist)
@@ -206,8 +214,8 @@ class student:
                 st4 = commentbank[13][0]
             else:
                 st4 = commentbank[13][hci]
-        return st4 
-    
+        return st4
+
     def fis(self):
         st5 = ''
         minGrade = min(self.intlist)
@@ -220,16 +228,16 @@ class student:
                 st5 = commentbank[14][lci]
         elif self.finalGrade() in range(4, 6):
             if self.A == self.B & self.B == self.C & self.C == self.D:
-                st5 = commentbank[15][0] 
+                st5 = commentbank[15][0]
             else:
                 st5 = commentbank[15][lci]
         else:
             if (self.A == self.B & self.B == self.C & self.C == self.D):
-                st5 = commentbank[16][0] 
+                st5 = commentbank[16][0]
             else:
                 st5 = commentbank[16][lci]
         return st5
-    
+
     def sis(self):
         st6 = ''
         if studentinfo[self.col][10] == 'EE':
@@ -244,7 +252,7 @@ class student:
 
     def ses(self):
         st7 = ''
-        if studentinfo[self.col][11]== 'EE':
+        if studentinfo[self.col][11] == 'EE':
             st7 = commentbank[18][0]
         elif studentinfo[self.col][11] == 'ME':
             st7 = commentbank[18][1]
@@ -253,7 +261,7 @@ class student:
         elif studentinfo[self.col][11] == 'BE':
             st7 = commentbank[18][3]
         return st7
-    
+
     def final(self):
         st8 = ''
         if self.finalGrade() == 7:
@@ -271,14 +279,15 @@ class student:
         else:
             st8 == commentbank[25][random.randint(0, 4)]
         return st8
-    
+
     def finalComment(self):
-        cumlt = self.fs() + self.ss() + self.ts() + self.fos() + self.fis() + self.sis() + self.ses() + self.final()
+        cumlt = self.fs() + self.ss() + self.ts() + self.fos() + \
+            self.fis() + self.sis() + self.ses() + self.final()
         named = cumlt.replace('Student!', studentinfo[self.col][0])
         atl1 = named.replace('ATL!', studentinfo[self.col][8])
         atl2 = atl1.replace('ATL2!', studentinfo[self.col][9])
         unit = atl2.replace('Unit!', unitinput)
-        period = unit.replace('term!', periodInput)
+        period = unit.replace('term!', periodinput)
 
         if studentinfo[self.col][7] == 'M':
             return period.replace('!', '')
@@ -289,19 +298,32 @@ class student:
             p4 = p3.replace('his!', 'her')
             return p4
 
+
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
 studentCommentPair = {}
 
-#Results Showcase
+# Results Showcase
+if not st.button("Generate!"):
+    st.stop()
+
 with st.spinner("Extending deadlines..."):
-    time.sleep(2)
-    
     bar = st.progress(0)
-    for i in range(100):
-        time.sleep(0.01)
-        bar.progress(i + 1)
+    time.sleep(0.3)
+    bar.progress(30)
+    time.sleep(0.5)
+    bar.progress(40)
+    time.sleep(0.2)
+    bar.progress(50)
+    time.sleep(0.3)
+    for i in range(50, 80):
+        time.sleep(0.03)
+        bar.progress(i)
+
+    bar.progress(100)
+
+    st.balloons()
 
     for i in range(stucount):
         stx = student(i)
@@ -313,9 +335,7 @@ with st.spinner("Extending deadlines..."):
         
         studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
 
-    st.balloons()
-
-#generate document
+# generate document
 exportComments = Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
@@ -323,8 +343,8 @@ for key in studentCommentPair:
     paragraph = exportComments.add_paragraph(studentCommentPair[key])
     paragraph.alignment = 4
 
-#Export comments as a document directly to downloads folder
-upPeriod = periodInput.capitalize()
+# Export comments as a document directly to downloads folder
+upPeriod = periodinput.capitalize()
 exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
 
 # Visualization of Grades
@@ -378,8 +398,8 @@ st.markdown('''---''')
 
 st.header("Class Statistics")
 with st.expander("Open statistics"):
-    col1, col2 = st.columns(2) 
-    col1.metric(label = 'Class Size',value = stucount)
+    col1, col2 = st.columns(2)
+    col1.metric(label='Class Size', value=stucount)
     col2.markdown('Top Students')
     for i in markIndex:
         col2.write(student(i).fn + ' ' + student(i).ln)
