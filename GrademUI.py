@@ -1,8 +1,12 @@
+import streamlit as st
+from io import StringIO
+from pathlib import Path
 import random
 import time
 import collections
 import pandas as pd
-import streamlit as st
+import docx
+from docx import Document
 from streamlit_echarts import st_echarts
 
 # Favicon and Headings
@@ -55,6 +59,7 @@ _max_width_()
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
+collectiveInfo = st.sidebar.text_input("Input Grade and Class (i.e G7.1)")
 
 # File I/O
 stu = st.sidebar.file_uploader("Select student file", type=['csv', 'xlsx'])
@@ -129,8 +134,6 @@ class student:
             return 6
         elif x <= 32:
             return 7
-
-        return x
 
     def deviation(self):
         deviation = max(self.intlist) - min(self.intlist)
@@ -299,6 +302,7 @@ class student:
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
+studentCommentPair = {}
 
 # Results Showcase
 if not st.button("Generate!"):
@@ -325,12 +329,71 @@ with st.spinner("Extending deadlines..."):
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
-        st.header("{0} {1}".format(stx.fn, stx.ln))
+
+        st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
+        
+        studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
+
+# generate document
+exportComments = Document()
+exportComments.add_heading(collectiveInfo)
+for key in studentCommentPair:
+    exportComments.add_heading(key, level = 2)
+    paragraph = exportComments.add_paragraph(studentCommentPair[key])
+    paragraph.alignment = 4
+
+# Export comments as a document directly to downloads folder
+upPeriod = periodinput.capitalize()
+exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
+counter=collections.Counter(gradelist)
+cdict = dict(counter)
 
+x = [1,2,3,4,5,6,7]
+for i in x: 
+    if i not in cdict.keys():
+        cdict[i] = 0 
+
+dict = [
+                {"value": cdict[7], "name": "No. of 7"},
+                {"value": cdict[6], "name": "No. of 6"},
+                {"value": cdict[5], "name": "No. of 5"},
+                {"value": cdict[4], "name": "No. of 4"},
+                {"value": cdict[3], "name": "No. of 3"},
+                {"value": cdict[2], "name": "No. of 2"},
+                {"value": cdict[1], "name": "No. of 1"}
+] 
+
+def hi():
+    options = {
+        "tooltip": {"trigger": "item"},
+        "legend": {"top": "5%", "left": "center"},
+        "series": [
+            {
+                "type": "pie",
+                "radius": ["30%", "70%"],
+                "avoidLabelOverlap": True,
+                "itemStyle": {
+                    "borderRadius": 10,
+                    "borderColor": "#fff",
+                    "borderWidth": 2,
+                },
+                "label": {"show": False, "position": "center"},
+                "emphasis": {
+                    "label": {"show": True, "fontSize": "40", "fontWeight": "bold"}
+                },
+                "labelLine": {"show": False},
+                "data": dict, 
+                    
+            }
+        ],
+    }
+    st_echarts(
+        options=options, height="500px",
+    )
 st.markdown('''---''')
 
 st.header("Class Statistics")
@@ -341,4 +404,6 @@ with st.expander("Open statistics"):
     for i in markIndex:
         col2.write(student(i).fn + ' ' + student(i).ln)
 
-    # something about a bar chart here
+    hi()
+
+
