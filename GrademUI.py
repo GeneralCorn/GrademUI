@@ -4,8 +4,6 @@ from pathlib import Path
 import random
 import time
 import pandas as pd
-import docx
-from docx import Document
 import openpyxl
 from streamlit_echarts import st_echarts
 import collections
@@ -316,7 +314,7 @@ with st.spinner("Extending deadlines..."):
     st.balloons()
 
 #generate document
-exportComments = Document()
+"""exportComments = Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
     exportComments.add_heading(key, level = 2)
@@ -326,7 +324,7 @@ for key in studentCommentPair:
 #Export comments as a document directly to downloads folder
 upPeriod = periodInput.capitalize()
 exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
-
+"""
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 counter=collections.Counter(gradelist)
