@@ -300,7 +300,6 @@ class student:
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
-studentCommentPair = {}
 
 # Results Showcase
 if not st.button("Generate!"):
@@ -330,21 +329,6 @@ with st.spinner("Extending deadlines..."):
 
         st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
-        
-        studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
-
-# generate document
-"""
-exportComments = Document()
-exportComments.add_heading(collectiveInfo)
-for key in studentCommentPair:
-    exportComments.add_heading(key, level = 2)
-    paragraph = exportComments.add_paragraph(studentCommentPair[key])
-    paragraph.alignment = 4
-
-# Export comments as a document directly to downloads folder
-upPeriod = periodinput.capitalize()
-exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")"""
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
