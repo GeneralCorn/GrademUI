@@ -301,13 +301,25 @@ gradelist = []
 totalMarks = []
 
 # Results Showcase
-with st.spinner("Extending deadlines..."):
-    time.sleep(2)
+if not st.button("Generate!"):
+    st.stop()
 
+with st.spinner("Extending deadlines..."):
     bar = st.progress(0)
-    for i in range(100):
-        time.sleep(0.01)
-        bar.progress(i + 1)
+    time.sleep(0.3)
+    bar.progress(30)
+    time.sleep(0.5)
+    bar.progress(40)
+    time.sleep(0.2)
+    bar.progress(50)
+    time.sleep(0.3)
+    for i in range(50, 80):
+        time.sleep(0.03)
+        bar.progress(i)
+
+    bar.progress(100)
+
+    st.balloons()
 
     for i in range(stucount):
         stx = student(i)
@@ -316,57 +328,8 @@ with st.spinner("Extending deadlines..."):
         st.header("{0} {1}".format(stx.fn, stx.ln))
         st.write(stx.finalComment())
 
-    st.balloons()
-
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
-counter = collections.Counter(gradelist)
-cdict = dict(counter)
-
-x = [1, 2, 3, 4, 5, 6, 7]
-for i in x:
-    if i not in cdict.keys():
-        cdict[i] = 0
-
-dict = [
-    {"value": cdict[7], "name": "No. of 7"},
-    {"value": cdict[6], "name": "No. of 6"},
-    {"value": cdict[5], "name": "No. of 5"},
-    {"value": cdict[4], "name": "No. of 4"},
-    {"value": cdict[3], "name": "No. of 3"},
-    {"value": cdict[2], "name": "No. of 2"},
-    {"value": cdict[1], "name": "No. of 1"}
-]
-
-
-def hi():
-    options = {
-        "tooltip": {"trigger": "item"},
-        "legend": {"top": "5%", "left": "center"},
-        "series": [
-            {
-                "type": "pie",
-                "radius": ["30%", "70%"],
-                "avoidLabelOverlap": True,
-                "itemStyle": {
-                    "borderRadius": 10,
-                    "borderColor": "#fff",
-                    "borderWidth": 2,
-                },
-                "label": {"show": False, "position": "center"},
-                "emphasis": {
-                    "label": {"show": True, "fontSize": "40", "fontWeight": "bold"}
-                },
-                "labelLine": {"show": False},
-                "data": dict,
-
-            }
-        ],
-    }
-    st_echarts(
-        options=options, height="500px",
-    )
-
 
 st.markdown('''---''')
 
@@ -378,4 +341,4 @@ with st.expander("Open statistics"):
     for i in markIndex:
         col2.write(student(i).fn + ' ' + student(i).ln)
 
-    hi()
+    # something about a bar chart here
