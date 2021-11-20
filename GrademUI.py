@@ -316,7 +316,6 @@ with st.spinner("Extending deadlines..."):
     st.balloons()
 
 #generate document
-st.header("Download all comments [.docx]")
 exportComments = Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
@@ -327,9 +326,6 @@ for key in studentCommentPair:
 #Export comments as a document directly to downloads folder
 upPeriod = periodInput.capitalize()
 exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
-st.write(exportComments.save())
-
-
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
