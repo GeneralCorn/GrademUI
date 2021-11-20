@@ -1,10 +1,9 @@
-import streamlit as st
 import random
 import time
-import pandas as pd
-import openpyxl
-from streamlit_echarts import st_echarts
 import collections
+import pandas as pd
+import streamlit as st
+from streamlit_echarts import st_echarts
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
@@ -14,7 +13,7 @@ st.set_page_config(page_title='Gradem', page_icon="💎")
 
 def _max_width_():
     st.markdown(
-        f"""
+        """
 <style>
     .reportview-container .main .block-container{{
         max-width: 1500px;
@@ -99,11 +98,11 @@ class student:
 
     def __init__(self, col):
         self.col = col
-        self.list = [studentinfo[col][2],
-                     studentinfo[col][3],
-                     studentinfo[col][4],
-                     studentinfo[col][5]]
-        self.intlist = [int(i) for i in self.list]
+    
+        self.intlist = []
+        for i in range(2, 6):
+            self.intlist.append(studentinfo[col][i])
+
         self.A = self.intlist[0]
         self.B = self.intlist[1]
         self.C = self.intlist[2]
@@ -130,6 +129,8 @@ class student:
             return 6
         elif x <= 32:
             return 7
+
+        return x
 
     def deviation(self):
         deviation = max(self.intlist) - min(self.intlist)
