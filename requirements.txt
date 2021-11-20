@@ -1,4 +1,7 @@
 pandas
 streamlit_echarts
+io
+pathlib
 openpyxl
+docx
 streamlit

@@ -1,7 +1,10 @@
 import streamlit as st
+from io import StringIO
+from pathlib import Path
 import random
 import time
 import pandas as pd
+import docx
 import openpyxl
 from streamlit_echarts import st_echarts
 import collections
@@ -50,9 +53,10 @@ _max_width_()
 
 #self.Basic Values
 
-periodinput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
+periodInput = st.sidebar.selectbox('Select Period: ', ('semester','year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
+collectiveInfo = st.sidebar.text_input("Input Grade and Class (i.e G7.1)")
 
 #File I/O
 stu = st.sidebar.file_uploader("Select student file",type=['csv','xlsx'])
@@ -273,7 +277,7 @@ class student:
         atl1 = named.replace('ATL!', studentinfo[self.col][8])
         atl2 = atl1.replace('ATL2!', studentinfo[self.col][9])
         unit = atl2.replace('Unit!', unitinput)
-        period = unit.replace('term!', periodinput)
+        period = unit.replace('term!', periodInput)
 
         if studentinfo[self.col][7] == 'M':
             return period.replace('!', '')
@@ -287,6 +291,7 @@ class student:
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
+studentCommentPair = {}
 
 #Results Showcase
 with st.spinner("Extending deadlines..."):
@@ -301,10 +306,29 @@ with st.spinner("Extending deadlines..."):
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
-        st.header("{0} {1}".format(stx.fn,stx.ln))
+
+        st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
+        
+        studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
 
     st.balloons()
+
+#generate document
+st.header("Download all comments [.docx]")
+exportComments = docx.Document()
+exportComments.add_heading(collectiveInfo)
+for key in studentCommentPair:
+    exportComments.add_heading(key, level = 2)
+    paragraph = exportComments.add_paragraph(studentCommentPair[key])
+    paragraph.alignment = 4
+
+#Export comments as a document directly to downloads folder
+upPeriod = periodInput.capitalize()
+exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
+st.write(exportComments.save())
+
+
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
