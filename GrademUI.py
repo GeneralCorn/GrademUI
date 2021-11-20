@@ -4,7 +4,7 @@ from pathlib import Path
 import random
 import time
 import pandas as pd
-import docx
+from docx import Document
 import openpyxl
 from streamlit_echarts import st_echarts
 import collections
@@ -316,7 +316,7 @@ with st.spinner("Extending deadlines..."):
 
 #generate document
 st.header("Download all comments [.docx]")
-exportComments = docx.Document()
+exportComments = Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
     exportComments.add_heading(key, level = 2)
