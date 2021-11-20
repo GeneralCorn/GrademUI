@@ -4,6 +4,7 @@ from pathlib import Path
 import random
 import time
 import pandas as pd
+import docx
 from docx import Document
 import openpyxl
 from streamlit_echarts import st_echarts
