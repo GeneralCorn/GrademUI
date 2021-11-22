@@ -3,4 +3,5 @@ streamlit_echarts
 pathlib
 openpyxl
 python-docx
+docx
 streamlit
