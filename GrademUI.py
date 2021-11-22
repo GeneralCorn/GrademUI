@@ -333,17 +333,16 @@ for key in studentCommentPair:
     paragraph = exportComments.add_paragraph(studentCommentPair[key])
     paragraph.alignment = 4
 
-upPeriod = periodinput.capitalize()
+upPeriod = periodInput.capitalize()
 
 target_stream = BytesIO()
 exportComments.save(target_stream)
-x = periodInput.capitalize()
 
 st.download_button(
     "Export as Word file",
     target_stream,
     mime='application/msword',
-    file_name=f"{collectiveInfo} MYP Design {x} Comments.docx",
+    file_name=f"{collectiveInfo} MYP Design {upPeriod} Comments.docx",
     help="Note, will regenerate comments")
 
 loadComments()
