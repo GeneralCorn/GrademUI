@@ -1,6 +1,5 @@
 import streamlit as st
-from io import StringIO
-from pathlib import Path
+from io import BytesIO
 import random
 import decimal
 import time
@@ -12,10 +11,9 @@ from streamlit_echarts import st_echarts
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
 
-# max_width
-
 
 def _max_width_():
+    """set max width"""
     st.markdown(
         """
 <style>
@@ -31,8 +29,6 @@ def _max_width_():
         unsafe_allow_html=True,
     )
 
-
-# hide menu
 
 # Headings
 st.title('Welcome to Gradem!')
@@ -51,7 +47,6 @@ st.caption('Scroll to the very bottom for some visualizations')
 _max_width_()
 
 # self.Basic Values
-
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
@@ -101,7 +96,7 @@ class student:
 
     def __init__(self, col):
         self.col = col
-    
+
         self.intlist = []
         for i in range(2, 6):
             self.intlist.append(studentinfo[col][i])
@@ -303,57 +298,94 @@ totalMarks = []
 studentCommentPair = {}
 
 # Results Showcase
-if not st.button("Generate!"):
+if 'firstRun' not in st.session_state:
+    st.session_state['firstRun'] = True
+
+if 'load' not in st.session_state:
+    st.session_state.load = True
+
+
+def run():
+    st.session_state.firstRun = False
+
+
+if st.session_state.firstRun:
+    st.button("Generate!", run())
     st.stop()
 
-def loadComments():
-    with st.spinner("Extending deadlines..."):
-        bar = st.progress(0)
-        x = decimal.Decimal(random.randrange(20, 100))/100 
-        time.sleep(0.3)
-        bar.progress(30)
-        time.sleep(0.5)
-        bar.progress(40)
-        time.sleep(0.2)
-        bar.progress(50)
-        time.sleep(0.3)
-        for i in range(50, 80):
-            time.sleep(0.03)
-            bar.progress(i)
-    
-        bar.progress(100)
-    
-        st.balloons()
-    
-        for i in range(stucount):
-            stx = student(i)
-            gradelist.append(stx.finalGrade())
-            totalMarks.append(stx.totalMarks())
-            studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
-            st.header(f"{stx.fn} {stx.ln}")
-            st.write(stx.finalComment())
 
-loadComments()    
+def loadComments():
+    if st.session_state.load:
+        with st.spinner("Extending deadlines..."):
+            bar = st.progress(0)
+            time.sleep(0.3)
+            bar.progress(30)
+            time.sleep(0.5)
+            bar.progress(40)
+            time.sleep(0.2)
+            bar.progress(50)
+            time.sleep(0.3)
+            for i in range(50, 80):
+                time.sleep(0.03)
+                bar.progress(i)
+
+            bar.progress(100)
+
+            st.balloons()
+
+            # Don't do the animation a second time
+            st.session_state.load = False
+
+    for i in range(stucount):
+        stx = student(i)
+        gradelist.append(stx.finalGrade())
+        totalMarks.append(stx.totalMarks())
+        studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
+        st.header(f"{stx.fn} {stx.ln}")
+        st.write(stx.finalComment())
+
+
+exportComments = docx.Document()
+exportComments.add_heading(collectiveInfo)
+for key in studentCommentPair:
+    exportComments.add_heading(key, level=2)
+    paragraph = exportComments.add_paragraph(studentCommentPair[key])
+    paragraph.alignment = 4
+
+upPeriod = periodinput.capitalize()
+
+target_stream = BytesIO()
+exportComments.save(target_stream)
+
+st.download_button(
+    "Export as Word file",
+    target_stream,
+    mime='application/msword',
+    file_name="generated.docx",
+    help="Note, will regenerate comments")
+
+loadComments()
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
-counter=collections.Counter(gradelist)
+counter = collections.Counter(gradelist)
 cdict = dict(counter)
 
-x = [1,2,3,4,5,6,7]
-for i in x: 
+x = [1, 2, 3, 4, 5, 6, 7]
+for i in x:
     if i not in cdict.keys():
-        cdict[i] = 0 
+        cdict[i] = 0
 
 dict = [
-                {"value": cdict[7], "name": "No. of 7"},
-                {"value": cdict[6], "name": "No. of 6"},
-                {"value": cdict[5], "name": "No. of 5"},
-                {"value": cdict[4], "name": "No. of 4"},
-                {"value": cdict[3], "name": "No. of 3"},
-                {"value": cdict[2], "name": "No. of 2"},
-                {"value": cdict[1], "name": "No. of 1"}
-] 
+    {"value": cdict[7], "name": "No. of 7"},
+    {"value": cdict[6], "name": "No. of 6"},
+    {"value": cdict[5], "name": "No. of 5"},
+    {"value": cdict[4], "name": "No. of 4"},
+    {"value": cdict[3], "name": "No. of 3"},
+    {"value": cdict[2], "name": "No. of 2"},
+    {"value": cdict[1], "name": "No. of 1"}
+]
+
 
 def hi():
     options = {
@@ -374,28 +406,15 @@ def hi():
                     "label": {"show": True, "fontSize": "40", "fontWeight": "bold"}
                 },
                 "labelLine": {"show": False},
-                "data": dict, 
-                    
+                "data": dict,
+
             }
         ],
     }
     st_echarts(
         options=options, height="500px",
-    ) 
+    )
 
-st.markdown('''---''')
-
-exportComments = docx.Document()
-exportComments.add_heading(collectiveInfo)
-for key in studentCommentPair:
-    exportComments.add_heading(key, level = 2)
-    paragraph = exportComments.add_paragraph(studentCommentPair[key])
-    paragraph.alignment = 4
-
-upPeriod = periodinput.capitalize()
-download = exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
-st.error("Save word file to downloads?")
-st.button("Yes", on_click = download)
 
 st.header("Class Statistics")
 with st.expander("Open statistics"):
@@ -406,5 +425,3 @@ with st.expander("Open statistics"):
         col2.write(student(i).fn + ' ' + student(i).ln)
 
     hi()
-
-
