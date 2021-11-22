@@ -337,12 +337,13 @@ upPeriod = periodinput.capitalize()
 
 target_stream = BytesIO()
 exportComments.save(target_stream)
+x = periodInput.capitalize()
 
 st.download_button(
     "Export as Word file",
     target_stream,
     mime='application/msword',
-    file_name="generated.docx",
+    file_name=f"{collectiveInfo} MYP Design {x} Comments.docx",
     help="Note, will regenerate comments")
 
 loadComments()
