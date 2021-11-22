@@ -1,7 +1,5 @@
 import streamlit as st
-from io import StringIO
 from io import BytesIO
-from pathlib import Path
 import random
 import decimal
 import time
