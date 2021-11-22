@@ -28,7 +28,7 @@ st.caption('Scroll to the very bottom for some visualizations')
 
 
 # self.Basic Values
-periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
+periodInput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
 collectiveInfo = st.sidebar.text_input("Input Grade and Class (i.e G7.1)")
@@ -261,7 +261,7 @@ class student:
         atl1 = named.replace('ATL!', studentinfo[self.col][8])
         atl2 = atl1.replace('ATL2!', studentinfo[self.col][9])
         unit = atl2.replace('Unit!', unitinput)
-        period = unit.replace('term!', periodinput)
+        period = unit.replace('term!', periodInput)
 
         if studentinfo[self.col][7] == 'M':
             return period.replace('!', '')
