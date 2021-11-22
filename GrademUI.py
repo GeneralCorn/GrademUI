@@ -11,10 +11,9 @@ from streamlit_echarts import st_echarts
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
 
-# max_width
-
 
 def _max_width_():
+    """set max width"""
     st.markdown(
         """
 <style>
@@ -30,8 +29,6 @@ def _max_width_():
         unsafe_allow_html=True,
     )
 
-
-# hide menu
 
 # Headings
 st.title('Welcome to Gradem!')
@@ -50,7 +47,6 @@ st.caption('Scroll to the very bottom for some visualizations')
 _max_width_()
 
 # self.Basic Values
-
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
@@ -302,37 +298,71 @@ totalMarks = []
 studentCommentPair = {}
 
 # Results Showcase
-if not st.button("Generate!"):
+if 'firstRun' not in st.session_state:
+    st.session_state['firstRun'] = True
+
+if 'load' not in st.session_state:
+    st.session_state.load = True
+
+
+def run():
+    st.session_state.firstRun = False
+
+
+if st.session_state.firstRun:
+    st.button("Generate!", run())
     st.stop()
 
 
 def loadComments():
-    with st.spinner("Extending deadlines..."):
-        bar = st.progress(0)
-        x = decimal.Decimal(random.randrange(20, 100)) / 100
-        time.sleep(0.3)
-        bar.progress(30)
-        time.sleep(0.5)
-        bar.progress(40)
-        time.sleep(0.2)
-        bar.progress(50)
-        time.sleep(0.3)
-        for i in range(50, 80):
-            time.sleep(0.03)
-            bar.progress(i)
+    if st.session_state.load:
+        with st.spinner("Extending deadlines..."):
+            bar = st.progress(0)
+            time.sleep(0.3)
+            bar.progress(30)
+            time.sleep(0.5)
+            bar.progress(40)
+            time.sleep(0.2)
+            bar.progress(50)
+            time.sleep(0.3)
+            for i in range(50, 80):
+                time.sleep(0.03)
+                bar.progress(i)
 
-        bar.progress(100)
+            bar.progress(100)
 
-        st.balloons()
+            st.balloons()
 
-        for i in range(stucount):
-            stx = student(i)
-            gradelist.append(stx.finalGrade())
-            totalMarks.append(stx.totalMarks())
-            studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
-            st.header(f"{stx.fn} {stx.ln}")
-            st.write(stx.finalComment())
+            # Don't do the animation a second time
+            st.session_state.load = False
 
+    for i in range(stucount):
+        stx = student(i)
+        gradelist.append(stx.finalGrade())
+        totalMarks.append(stx.totalMarks())
+        studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
+        st.header(f"{stx.fn} {stx.ln}")
+        st.write(stx.finalComment())
+
+
+exportComments = docx.Document()
+exportComments.add_heading(collectiveInfo)
+for key in studentCommentPair:
+    exportComments.add_heading(key, level=2)
+    paragraph = exportComments.add_paragraph(studentCommentPair[key])
+    paragraph.alignment = 4
+
+upPeriod = periodinput.capitalize()
+
+target_stream = BytesIO()
+exportComments.save(target_stream)
+
+st.download_button(
+    "Export as Word file",
+    target_stream,
+    mime='application/msword',
+    file_name="generated.docx",
+    help="Note, will regenerate comments")
 
 loadComments()
 
@@ -385,26 +415,6 @@ def hi():
         options=options, height="500px",
     )
 
-
-st.markdown('''---''')
-
-exportComments = docx.Document()
-exportComments.add_heading(collectiveInfo)
-for key in studentCommentPair:
-    exportComments.add_heading(key, level=2)
-    paragraph = exportComments.add_paragraph(studentCommentPair[key])
-    paragraph.alignment = 4
-
-upPeriod = periodinput.capitalize()
-
-target_stream = BytesIO()
-exportComments.save(target_stream)
-
-st.download_button(
-    "Export as Word file",
-    target_stream,
-    mime='application/msword',
-    file_name="generated.docx")
 
 st.header("Class Statistics")
 with st.expander("Open statistics"):
