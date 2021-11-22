@@ -9,8 +9,7 @@ import docx
 from streamlit_echarts import st_echarts
 
 # Favicon and Headings
-st.set_page_config(page_title='Gradem', page_icon="💎")
-st.set_page_config(layout="wide")
+st.set_page_config(page_title='Gradem', page_icon="💎",layout="wide)
 
 # Headings
 st.title('Welcome to Gradem!')
