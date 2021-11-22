@@ -10,25 +10,7 @@ from streamlit_echarts import st_echarts
 
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎")
-
-
-def _max_width_():
-    """set max width"""
-    st.markdown(
-        """
-<style>
-    .reportview-container .main .block-container{{
-        max-width: 1500px;
-        padding-top: 1rem;
-        padding-right: 5rem;
-        padding-left: 5rem;
-        padding-bottom: 1rem;
-    }}
-</style>
-""",
-        unsafe_allow_html=True,
-    )
-
+st.set_page_config(layout="wide")
 
 # Headings
 st.title('Welcome to Gradem!')
@@ -44,7 +26,7 @@ with st.sidebar.expander("Please download the template files"):
         )
 
 st.caption('Scroll to the very bottom for some visualizations')
-_max_width_()
+
 
 # self.Basic Values
 periodinput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
