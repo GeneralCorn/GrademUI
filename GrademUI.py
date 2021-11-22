@@ -2,9 +2,11 @@ import streamlit as st
 from io import StringIO
 from pathlib import Path
 import random
+import decimal
 import time
 import collections
 import pandas as pd
+import docx
 from streamlit_echarts import st_echarts
 
 # Favicon and Headings
@@ -31,16 +33,12 @@ def _max_width_():
 
 
 # hide menu
-x = '''st.markdown(""" <style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-</style> """, unsafe_allow_html=True)'''
 
 # Headings
 st.title('Welcome to Gradem!')
 st.header('Gradem is a centralized IB MYP design comments generator')
 
-with st.expander("Please download the template files"):
+with st.sidebar.expander("Please download the template files"):
     with open("./Templates.zip", "rb") as file:
         btn = st.download_button(
             label="Download",
@@ -49,7 +47,7 @@ with st.expander("Please download the template files"):
             mime="file/zip"
         )
 
-st.caption('Please scroll to the very bottom for some visualizations')
+st.caption('Scroll to the very bottom for some visualizations')
 _max_width_()
 
 # self.Basic Values
@@ -67,6 +65,19 @@ sentences = st.sidebar.file_uploader(
 st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
 
 # Convert input files into list and reformat accordingly
+
+if stu is not None:
+    if stu.name[-4:] == '.csv':
+        df = pd.read_csv(stu)
+        studentinfo = df.values.tolist()
+    else:
+        df = pd.read_excel(stu)
+        studentinfo = df.values.tolist()
+else:
+    st.warning("Upload student file")
+    st.stop()
+
+
 if sentences is not None:
     if sentences.name[-4:] == '.csv':
         df1 = pd.read_csv(sentences)
@@ -80,17 +91,6 @@ if sentences is not None:
             del i[0]
 else:
     st.warning("Upload commentbank file")
-    st.stop()
-
-if stu is not None:
-    if stu.name[-4:] == '.csv':
-        df = pd.read_csv(stu)
-        studentinfo = df.values.tolist()
-    else:
-        df = pd.read_excel(stu)
-        studentinfo = df.values.tolist()
-else:
-    st.warning("Upload student file")
     st.stop()
 
 # student class, each object has unique set of info list based on object
@@ -300,35 +300,40 @@ class student:
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
+studentCommentPair = {}
 
 # Results Showcase
 if not st.button("Generate!"):
     st.stop()
 
-with st.spinner("Extending deadlines..."):
-    bar = st.progress(0)
-    time.sleep(0.3)
-    bar.progress(30)
-    time.sleep(0.5)
-    bar.progress(40)
-    time.sleep(0.2)
-    bar.progress(50)
-    time.sleep(0.3)
-    for i in range(50, 80):
-        time.sleep(0.03)
-        bar.progress(i)
+def loadComments():
+    with st.spinner("Extending deadlines..."):
+        bar = st.progress(0)
+        x = decimal.Decimal(random.randrange(20, 100))/100 
+        time.sleep(0.3)
+        bar.progress(30)
+        time.sleep(0.5)
+        bar.progress(40)
+        time.sleep(0.2)
+        bar.progress(50)
+        time.sleep(0.3)
+        for i in range(50, 80):
+            time.sleep(0.03)
+            bar.progress(i)
+    
+        bar.progress(100)
+    
+        st.balloons()
+    
+        for i in range(stucount):
+            stx = student(i)
+            gradelist.append(stx.finalGrade())
+            totalMarks.append(stx.totalMarks())
+            studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
+            st.header(f"{stx.fn} {stx.ln}")
+            st.write(stx.finalComment())
 
-    bar.progress(100)
-
-    st.balloons()
-
-    for i in range(stucount):
-        stx = student(i)
-        gradelist.append(stx.finalGrade())
-        totalMarks.append(stx.totalMarks())
-
-        st.header(f"{stx.fn} {stx.ln}")
-        st.write(stx.finalComment())
+loadComments()    
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
@@ -376,8 +381,21 @@ def hi():
     }
     st_echarts(
         options=options, height="500px",
-    )
+    ) 
+
 st.markdown('''---''')
+
+exportComments = docx.Document()
+exportComments.add_heading(collectiveInfo)
+for key in studentCommentPair:
+    exportComments.add_heading(key, level = 2)
+    paragraph = exportComments.add_paragraph(studentCommentPair[key])
+    paragraph.alignment = 4
+
+upPeriod = periodinput.capitalize()
+download = exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
+st.error("Save word file to downloads?")
+st.button("Yes", on_click = download)
 
 st.header("Class Statistics")
 with st.expander("Open statistics"):
