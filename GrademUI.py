@@ -1,5 +1,6 @@
 import streamlit as st
 from io import StringIO
+from io import BytesIO
 from pathlib import Path
 import random
 import decimal
@@ -101,7 +102,7 @@ class student:
 
     def __init__(self, col):
         self.col = col
-    
+
         self.intlist = []
         for i in range(2, 6):
             self.intlist.append(studentinfo[col][i])
@@ -306,10 +307,11 @@ studentCommentPair = {}
 if not st.button("Generate!"):
     st.stop()
 
+
 def loadComments():
     with st.spinner("Extending deadlines..."):
         bar = st.progress(0)
-        x = decimal.Decimal(random.randrange(20, 100))/100 
+        x = decimal.Decimal(random.randrange(20, 100)) / 100
         time.sleep(0.3)
         bar.progress(30)
         time.sleep(0.5)
@@ -320,40 +322,42 @@ def loadComments():
         for i in range(50, 80):
             time.sleep(0.03)
             bar.progress(i)
-    
+
         bar.progress(100)
-    
+
         st.balloons()
-    
+
         for i in range(stucount):
             stx = student(i)
             gradelist.append(stx.finalGrade())
             totalMarks.append(stx.totalMarks())
-            studentCommentPair[f"{stx.fn} {stx.ln}"]=stx.finalComment()
+            studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
             st.header(f"{stx.fn} {stx.ln}")
             st.write(stx.finalComment())
 
-loadComments()    
+
+loadComments()
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
-counter=collections.Counter(gradelist)
+counter = collections.Counter(gradelist)
 cdict = dict(counter)
 
-x = [1,2,3,4,5,6,7]
-for i in x: 
+x = [1, 2, 3, 4, 5, 6, 7]
+for i in x:
     if i not in cdict.keys():
-        cdict[i] = 0 
+        cdict[i] = 0
 
 dict = [
-                {"value": cdict[7], "name": "No. of 7"},
-                {"value": cdict[6], "name": "No. of 6"},
-                {"value": cdict[5], "name": "No. of 5"},
-                {"value": cdict[4], "name": "No. of 4"},
-                {"value": cdict[3], "name": "No. of 3"},
-                {"value": cdict[2], "name": "No. of 2"},
-                {"value": cdict[1], "name": "No. of 1"}
-] 
+    {"value": cdict[7], "name": "No. of 7"},
+    {"value": cdict[6], "name": "No. of 6"},
+    {"value": cdict[5], "name": "No. of 5"},
+    {"value": cdict[4], "name": "No. of 4"},
+    {"value": cdict[3], "name": "No. of 3"},
+    {"value": cdict[2], "name": "No. of 2"},
+    {"value": cdict[1], "name": "No. of 1"}
+]
+
 
 def hi():
     options = {
@@ -374,28 +378,35 @@ def hi():
                     "label": {"show": True, "fontSize": "40", "fontWeight": "bold"}
                 },
                 "labelLine": {"show": False},
-                "data": dict, 
-                    
+                "data": dict,
+
             }
         ],
     }
     st_echarts(
         options=options, height="500px",
-    ) 
+    )
+
 
 st.markdown('''---''')
 
 exportComments = docx.Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
-    exportComments.add_heading(key, level = 2)
+    exportComments.add_heading(key, level=2)
     paragraph = exportComments.add_paragraph(studentCommentPair[key])
     paragraph.alignment = 4
 
 upPeriod = periodinput.capitalize()
-download = exportComments.save(str(Path.home()) + f"/Downloads/{collectiveInfo} MYP Design {upPeriod} Comments.docx")
-st.error("Save word file to downloads?")
-st.button("Yes", on_click = download)
+
+target_stream = BytesIO()
+exportComments.save(target_stream)
+
+st.download_button(
+    "Export as Word file",
+    target_stream,
+    mime='application/msword',
+    file_name="generated.docx")
 
 st.header("Class Statistics")
 with st.expander("Open statistics"):
@@ -406,5 +417,3 @@ with st.expander("Open statistics"):
         col2.write(student(i).fn + ' ' + student(i).ln)
 
     hi()
-
-
