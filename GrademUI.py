@@ -9,7 +9,7 @@ import docx
 from streamlit_echarts import st_echarts
 
 # Favicon and Headings
-st.set_page_config(page_title='Gradem', page_icon="💎",layout="wide")
+st.set_page_config(page_title='Gradem', page_icon="💎", layout="wide")
 
 # Headings
 st.title('Welcome to Gradem!')
@@ -48,6 +48,7 @@ if stu is not None:
         studentinfo = df.values.tolist()
     else:
         df = pd.read_excel(stu)
+        # some how add excel sheets into here sometime within the next few days after UC I suppose
         studentinfo = df.values.tolist()
 else:
     st.warning("Upload student file")
@@ -318,10 +319,12 @@ def loadComments():
             st.session_state.load = False
 
     for i in range(stucount):
+        
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
         studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
+        
         st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
 
