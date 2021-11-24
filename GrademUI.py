@@ -26,18 +26,33 @@ st.sidebar.caption("Please name sheets in excel document by class, i.e. (G7.1)")
 
 st.caption('Scroll to the very bottom for some visualizations')
 
-
 # self.Basic Values
 periodInput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
-unitinput = st.sidebar.text_input("Input Subject Unit: ")
+
+options = st.sidebar.radio(
+    'Specify unit(s) or use time period in question?',
+    ('Specify Unit(s)', 'Use Time Period'))
+
+multipleunits = False
+if options == "Specify Unit(s)":
+    unitinput = st.sidebar.text_input("Input Subject Unit:")
+    if unitinput == '':
+        st.warning("Please Input Subject Unit")
+        st.stop()
+    multipleunits = st.sidebar.checkbox('Multiple Units?')
+
 st.sidebar.caption('i.e. Landscapes, Web Design')
 
 # File I/O
 stu = st.sidebar.file_uploader("Select student file", type=['csv', 'xlsx'])
 st.sidebar.caption("In the form of student.csv or student.xlsx")
+
 sentences = st.sidebar.file_uploader(
     "Select commentbank file", type=['csv', 'xlsx'])
 st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
+
+if 'studentfile' not in st.session_state:
+    st.session_state['studentfile'] = stu
 
 # Convert input files into list and reformat accordingly
 if stu is not None:
@@ -49,10 +64,11 @@ if stu is not None:
         studentinfo = []
         sheets = pd.ExcelFile(stu)
         sheetnames = sheets.sheet_names
-        sheetnames.remove("Export Summary")
+        es = "Export Summary"
+        if es in sheetnames:
+            sheetnames.remove(es)
         collectiveInfo = st.selectbox('Select Class:',(sheetnames))
         df = pd.read_excel(stu,collectiveInfo)
-        st.write(df)
         studentinfo.extend(df.values.tolist())
 
 else:
@@ -75,8 +91,26 @@ else:
     st.warning("Upload commentbank file")
     st.stop()
 
+#<-------->
+exportComments = docx.Document()
+exportComments.add_heading(collectiveInfo)
+for key in st.session_state:
+    exportComments.add_heading(key, level=2)
+    paragraph = exportComments.add_paragraph(str(st.session_state[key]))
+    paragraph.alignment = 4
+
+upPeriod = periodInput.capitalize()
+target_stream = BytesIO()
+exportComments.save(target_stream)
+
+st.download_button(
+    "Export as Word file",
+    target_stream,
+    mime='application/msword',
+    file_name=f"{collectiveInfo} MYP Design {upPeriod} Comments.docx",
+    help="Note, will regenerate comments")
+
 # student class, each object has unique set of info list based on object
-# parameter
 
 
 class student:
@@ -266,7 +300,14 @@ class student:
         named = cumlt.replace('Student!', studentinfo[self.col][0])
         atl1 = named.replace('ATL!', studentinfo[self.col][8])
         atl2 = atl1.replace('ATL2!', studentinfo[self.col][9])
-        unit = atl2.replace('Unit!', unitinput)
+        
+        if multipleunits:
+            temp = atl2.replace('Unit!', unitinput) 
+            unit = temp.replace('unit', 'units')
+        elif options == 'Use Time Period':
+            unit = atl2.replace('Unit! unit', periodInput)
+        else: 
+            unit = atl2.replace('Unit!', unitinput)
         period = unit.replace('term!', periodInput)
 
         if studentinfo[self.col][7] == 'M':
@@ -282,24 +323,9 @@ class student:
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
-studentCommentPair = {}
-
-# Results Showcase
-if 'firstRun' not in st.session_state:
-    st.session_state['firstRun'] = True
 
 if 'load' not in st.session_state:
     st.session_state.load = True
-
-
-def run():
-    st.session_state.firstRun = False
-
-
-if st.session_state.firstRun:
-    st.button("Generate!", run())
-    st.stop()
-
 
 def loadComments():
     if st.session_state.load:
@@ -315,11 +341,8 @@ def loadComments():
             for i in range(50, 80):
                 time.sleep(0.03)
                 bar.progress(i)
-
             bar.progress(100)
-
-            st.balloons()
-
+            #st.balloons()
             # Don't do the animation a second time
             st.session_state.load = False
 
@@ -327,32 +350,11 @@ def loadComments():
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
-        studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
+        st.session_state[f"{stx.fn} {stx.ln}"] = stx.finalComment()
         st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
 
-
 loadComments()
-st.write(sheetnames)
-exportComments = docx.Document()
-exportComments.add_heading(collectiveInfo)
-for key in studentCommentPair:
-    exportComments.add_heading(key, level=2)
-    paragraph = exportComments.add_paragraph(studentCommentPair[key])
-    paragraph.alignment = 4
-
-upPeriod = periodInput.capitalize()
-target_stream = BytesIO()
-exportComments.save(target_stream)
-
-st.download_button(
-    "Export as Word file",
-    target_stream,
-    mime='application/msword',
-    file_name=f"{collectiveInfo} MYP Design {upPeriod} Comments.docx",
-    help="Note, will regenerate comments")
-
-
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
 counter = collections.Counter(gradelist)
