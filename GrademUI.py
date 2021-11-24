@@ -7,7 +7,6 @@ import collections
 import pandas as pd
 import docx
 from streamlit_echarts import st_echarts
-
 # Favicon and Headings
 st.set_page_config(page_title='Gradem', page_icon="💎", layout="wide")
 
@@ -23,6 +22,7 @@ with st.sidebar.expander("Please download the template files"):
             file_name="Templates.zip",
             mime="file/zip"
         )
+st.sidebar.caption("Please name sheets in excel document by class, i.e. (G7.1)")
 
 st.caption('Scroll to the very bottom for some visualizations')
 
@@ -31,7 +31,6 @@ st.caption('Scroll to the very bottom for some visualizations')
 periodInput = st.sidebar.selectbox('Select Period: ', ('semester', 'year'))
 unitinput = st.sidebar.text_input("Input Subject Unit: ")
 st.sidebar.caption('i.e. Landscapes, Web Design')
-collectiveInfo = st.sidebar.text_input("Input Grade and Class (i.e G7.1)")
 
 # File I/O
 stu = st.sidebar.file_uploader("Select student file", type=['csv', 'xlsx'])
@@ -41,15 +40,21 @@ sentences = st.sidebar.file_uploader(
 st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
 
 # Convert input files into list and reformat accordingly
-
 if stu is not None:
     if stu.name[-4:] == '.csv':
         df = pd.read_csv(stu)
         studentinfo = df.values.tolist()
     else:
-        df = pd.read_excel(stu)
-        # some how add excel sheets into here sometime within the next few days after UC I suppose
-        studentinfo = df.values.tolist()
+        #persistent variables
+        studentinfo = []
+        sheets = pd.ExcelFile(stu)
+        sheetnames = sheets.sheet_names
+        sheetnames.remove("Export Summary")
+        collectiveInfo = st.selectbox('Select Class:',(sheetnames))
+        df = pd.read_excel(stu,collectiveInfo)
+        st.write(df)
+        studentinfo.extend(df.values.tolist())
+
 else:
     st.warning("Upload student file")
     st.stop()
@@ -319,16 +324,16 @@ def loadComments():
             st.session_state.load = False
 
     for i in range(stucount):
-        
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
         studentCommentPair[f"{stx.fn} {stx.ln}"] = stx.finalComment()
-        
         st.header(f"{stx.fn} {stx.ln}")
         st.write(stx.finalComment())
 
 
+loadComments()
+st.write(sheetnames)
 exportComments = docx.Document()
 exportComments.add_heading(collectiveInfo)
 for key in studentCommentPair:
@@ -337,7 +342,6 @@ for key in studentCommentPair:
     paragraph.alignment = 4
 
 upPeriod = periodInput.capitalize()
-
 target_stream = BytesIO()
 exportComments.save(target_stream)
 
@@ -348,7 +352,6 @@ st.download_button(
     file_name=f"{collectiveInfo} MYP Design {upPeriod} Comments.docx",
     help="Note, will regenerate comments")
 
-loadComments()
 
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
