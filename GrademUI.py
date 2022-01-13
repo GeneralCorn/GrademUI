@@ -68,7 +68,7 @@ if stu is not None:
         if es in sheetnames:
             sheetnames.remove(es)
         collectiveInfo = st.selectbox("Select Class:",(sheetnames))
-        df = pd.read_excel(stu,collectiveInfo)
+        df = pd.read_excel(stu, collectiveInfo)
         studentinfo.extend(df.values.tolist())
 
 else:
@@ -95,9 +95,10 @@ else:
 exportComments = docx.Document()
 exportComments.add_heading(collectiveInfo)
 for key in st.session_state:
-    exportComments.add_heading(key, level=2)
-    paragraph = exportComments.add_paragraph(str(st.session_state[key]))
-    paragraph.alignment = 4
+    if key not in('studentfile','load'):
+        exportComments.add_heading(key, level=2)
+        paragraph = exportComments.add_paragraph(str(st.session_state[key]))
+        paragraph.alignment = 4
 
 upPeriod = periodInput.capitalize()
 target_stream = BytesIO()
@@ -112,12 +113,10 @@ st.download_button(
 
 # student class, each object has unique set of info list based on object
 
-
 class student:
 
     def __init__(self, col):
         self.col = col
-
         self.intlist = []
         for i in range(2, 6):
             self.intlist.append(studentinfo[col][i])
@@ -350,8 +349,8 @@ def loadComments():
         stx = student(i)
         gradelist.append(stx.finalGrade())
         totalMarks.append(stx.totalMarks())
-        st.session_state[f"{stx.fn} {stx.ln}"] = stx.finalComment()
-        st.header(f"{stx.fn} {stx.ln}")
+        st.session_state[f"{stx.fn} {stx.ln} {collectiveInfo}"] = stx.finalComment()
+        st.header(f"{stx.fn} {stx.ln} {collectiveInfo}")
         st.write(stx.finalComment())
 
 loadComments()
@@ -365,15 +364,17 @@ for i in x:
     if i not in cdict.keys():
         cdict[i] = 0
 
-dict = [
-    {"value": cdict[7], "name": "No. of 7"},
-    {"value": cdict[6], "name": "No. of 6"},
-    {"value": cdict[5], "name": "No. of 5"},
-    {"value": cdict[4], "name": "No. of 4"},
-    {"value": cdict[3], "name": "No. of 3"},
-    {"value": cdict[2], "name": "No. of 2"},
-    {"value": cdict[1], "name": "No. of 1"}
-]
+# dict = [
+#     {"value": cdict[7], "name": "No. of 7"},
+#     {"value": cdict[6], "name": "No. of 6"},
+#     {"value": cdict[5], "name": "No. of 5"},
+#     {"value": cdict[4], "name": "No. of 4"},
+#     {"value": cdict[3], "name": "No. of 3"},
+#     {"value": cdict[2], "name": "No. of 2"},
+#     {"value": cdict[1], "name": "No. of 1"}
+# ]
+ 
+dict = [{"value": cdict[i], "name": f"No. of {i}"} for i in range(1,8)]
 
 
 def hi():
