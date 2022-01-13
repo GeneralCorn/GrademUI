@@ -96,9 +96,10 @@ exportComments = docx.Document()
 exportComments.add_heading(collectiveInfo)
 for key in st.session_state:
     if key not in('studentfile','load'):
-        exportComments.add_heading(key, level=2)
-        paragraph = exportComments.add_paragraph(str(st.session_state[key]))
-        paragraph.alignment = 4
+        if key[-2:] == collectiveInfo:
+            exportComments.add_heading(key, level=2)
+            paragraph = exportComments.add_paragraph(str(st.session_state[key]))
+            paragraph.alignment = 4
 
 upPeriod = periodInput.capitalize()
 target_stream = BytesIO()
