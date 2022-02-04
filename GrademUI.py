@@ -36,12 +36,11 @@ options = st.sidebar.radio(
 multipleunits = False
 if options == "Specify Unit(s)":
     unitinput = st.sidebar.text_input("Input Subject Unit:")
+    st.sidebar.caption("i.e. Landscapes, Web Design")
     if unitinput == "":
         st.warning("Please Input Subject Unit")
         st.stop()
     multipleunits = st.sidebar.checkbox("Multiple Units?")
-
-st.sidebar.caption("i.e. Landscapes, Web Design")
 
 # File I/O
 stu = st.sidebar.file_uploader("Select student file", type=["csv", "xlsx"])
