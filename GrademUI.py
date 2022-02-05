@@ -50,9 +50,6 @@ sentences = st.sidebar.file_uploader(
     "Select commentbank file", type=["csv", "xlsx"])
 st.sidebar.caption("In the form of sentences.csv or sentences.xlsx")
 
-if "studentfile" not in st.session_state:
-    st.session_state["studentfile"] = stu
-
 # Convert input files into list and reformat accordingly
 if stu is not None:
     if stu.name[-4:] == ".csv":
@@ -94,7 +91,7 @@ else:
 exportComments = docx.Document()
 exportComments.add_heading(collectiveInfo)
 for key in st.session_state:
-    if key not in('studentfile','load'):
+    if key != 'load':
         if key[-2:] == collectiveInfo:
             exportComments.add_heading(key, level=2)
             paragraph = exportComments.add_paragraph(str(st.session_state[key]))
