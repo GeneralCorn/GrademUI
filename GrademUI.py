@@ -291,7 +291,7 @@ class student:
         return st8
 
     def finalComment(self):
-        cumlt = self.fs() + self.ss() + self.ts() + self.fos() + \
+        cumlt = self.fs() + self.ss() + self.ts() + self.fos() +
             self.fis() + self.sis() + self.ses() + self.final()
         named = cumlt.replace("Student!", studentinfo[self.col][0])
         atl1 = named.replace("ATL!", studentinfo[self.col][8])
