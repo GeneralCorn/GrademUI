@@ -8,7 +8,7 @@ import pandas as pd
 import docx
 from streamlit_echarts import st_echarts
 # Favicon and Headings
-st.set_page_config(page_title="Gradem", page_icon="💎", layout="wide")
+st.set_page_config(page_title="Gradem", page_icon="üíé", layout="wide")
 
 # Headings
 st.title("Welcome to Gradem!")
@@ -315,7 +315,6 @@ class student:
             p4 = p3.replace("his!", "her")
             return p4
 
-
 stucount = len(studentinfo)
 gradelist = []
 totalMarks = []
@@ -353,6 +352,7 @@ def loadComments():
 loadComments()
 # Visualization of Grades
 markIndex = [i for i, x in enumerate(totalMarks) if x == max(totalMarks)]
+
 counter = collections.Counter(gradelist)
 cdict = dict(counter)
 
@@ -361,20 +361,9 @@ for i in x:
     if i not in cdict.keys():
         cdict[i] = 0
 
-# dict = [
-#     {"value": cdict[7], "name": "No. of 7"},
-#     {"value": cdict[6], "name": "No. of 6"},
-#     {"value": cdict[5], "name": "No. of 5"},
-#     {"value": cdict[4], "name": "No. of 4"},
-#     {"value": cdict[3], "name": "No. of 3"},
-#     {"value": cdict[2], "name": "No. of 2"},
-#     {"value": cdict[1], "name": "No. of 1"}
-# ]
- 
 dict = [{"value": cdict[i], "name": f"No. of {i}"} for i in range(1,8)]
 
-
-def hi():
+def chart():
     options = {
         "tooltip": {"trigger": "item"},
         "legend": {"top": "5%", "left": "center"},
@@ -411,4 +400,4 @@ with st.expander("Open statistics"):
     for i in markIndex:
         col2.write(student(i).fn + " " + student(i).ln)
 
-    hi()
+    chart()
